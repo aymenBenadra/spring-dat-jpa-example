@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql
+    command: --max_connections=200
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=test
+    expose:
+      - 3306
+    volumes:
+      - db_data_test:/var/lib/mysql
+    restart: unless-stopped
+  deployment:
+    image: tomcat
+    ports:
+      - 8080:8080
+    volumes:
+      - ./target/untitled.war:/usr/local/tomcat/webapps/ROOT.war
+    depends_on:
+      - db
+    restart: unless-stopped
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8081:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    depends_on:
+      - db
+volumes:
+  db_data_test:
